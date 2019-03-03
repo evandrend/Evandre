@@ -22,4 +22,43 @@ create table nota(id int auto_increment primary key,
                   nota decimal(4,2) not null,
                   tmp_lancamento timestamp default current_timestamp) engine=innoDB;
                   
+/*Preste atencao, temos duas tabelas dependentes uma da outra, um dos erros que queremos evitar é de quando cadastrarmos uma aluno
+e tivermos algum erro  o SGBD não execute mas nenhuma operaçao e o mesmo se ocorrer um erro em nota, que faça um rollback para a pessoas
+*/
 
+/*2STEP: criar o stored procedure responsavel por controlar as transações. Provavelmente para esse 
+exemplo(alunos e notas) controlar as transações n faça muito sentido mas existem casos que serão muito uteis para ti
+Vamos então ao código chega de '//' */   
+
+DELIMITER \\ /*Voce já deve saber isso, mudar delimitador de linhas*/
+
+ create procedure sp_Insert_Aluno_Nota(
+ p_nome varchar(32),
+ p_sexo enum('M','F','O'),
+ p_dt_nascimento date,
+ p_nota decimal(4,2)
+ )
+	transacao:BEGIN
+	  declare transacao_acid default 1; /*Uma variavel que verifica a integridade da transacao*/
+	  declare continue handler for sqlexception set transacao_acid=0;
+           /*Essa declaraçao é conitinue ela declara ou exececuta sempre que ocorre um erro na DML*/
+	  insert into aluno set nome=p_nome, sexo=p_sexo, dt_nascimento=p_dt_nascimento;
+	  IF !transacao_acid then
+           rollback;
+           leave transacao;
+           select 'Erro ao cadastrar aluno' as msg;
+	   ELSE
+       set @id_aluno=(select distinct last_insert_id() from aluno);
+       insert into nota set id_aluno=@id_aluno, nota=p_nota;
+         IF !transacao_acid then
+         rollback;
+         leave transacao;
+         select 'Erro ao cadastrar Nota' as msg;
+         ELSE
+           commit;
+           select 'Transação feita com sucesso' as msg;
+         END IF;
+       END IF;
+           
+	END \\
+DELIMITER ;
