@@ -4,6 +4,8 @@
 /* 1STEP: Criei o banco de dados com suporte de caracter utf8 e as tabela aluno de forma improvisada com a engenharia innoDB 
 de modo a suportar transactions(e outros recursos) basta fazeres com show engines e ver*/
 
+select * from aluno;
+
 create database db_estudando_declare_handler
 default character set utf8
 default collate utf8_general_ci;
@@ -30,7 +32,8 @@ e tivermos algum erro  o SGBD não execute mas nenhuma operaçao e o mesmo se oc
 exemplo(alunos e notas) controlar as transações n faça muito sentido mas existem casos que serão muito uteis para ti
 Vamos então ao código chega de '//' */   
 
-DELIMITER \\ /*Voce já deve saber isso, mudar delimitador de linhas*/
+
+DELIMITER $$ /*Voce já deve saber isso, mudar delimitador de linhas*/
 
  create procedure sp_Insert_Aluno_Nota(
  p_nome varchar(32),
@@ -59,6 +62,5 @@ DELIMITER \\ /*Voce já deve saber isso, mudar delimitador de linhas*/
            select 'Transação feita com sucesso' as msg;
          END IF;
        END IF;
-           
-	END \\
+	END $$
 DELIMITER ;
