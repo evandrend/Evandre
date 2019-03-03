@@ -1,4 +1,4 @@
-			   /*Objecto: Aprender a  declrar Manipuladores, muito útil para manipular excessões e melhorar as transaçoes 
+ 			   /*Objecto: Aprender a  declrar Manipuladores, muito útil para manipular excessões e melhorar as transaçoes 
                  Por:Evandre Da Silva, DBA Junior*/
 
 /* 1STEP: Criei o banco de dados com suporte de caracter utf8 e as tabela aluno de forma improvisada com a engenharia innoDB 
@@ -33,8 +33,11 @@ exemplo(alunos e notas) controlar as transações n faça muito sentido mas exis
 Vamos então ao código chega de '//' */   
 
 
-DELIMITER $$ /*Voce já deve saber isso, mudar delimitador de linhas*/
 
+
+/*Voce já deve saber isso, mudar delimitador de linhas*/
+DELIMITER $$
+drop procedure  if exists sp_Insert_Aluno_Nota$$
  create procedure sp_Insert_Aluno_Nota(
  p_nome varchar(32),
  p_sexo enum('M','F','O'),
@@ -42,14 +45,14 @@ DELIMITER $$ /*Voce já deve saber isso, mudar delimitador de linhas*/
  p_nota decimal(4,2)
  )
 	transacao:BEGIN
-	  declare transacao_acid default 1; /*Uma variavel que verifica a integridade da transacao*/
-	  declare continue handler for sqlexception set transacao_acid=0;
+	  declare transacao_acid bit default 1; /*Uma variavel que verifica a integridade da transacao*/
+	  declare continue handler for sqlexception set transacao_acid=0; /*A magia está nessa M#RDA aqui (desculpa empolgui-me)*/
            /*Essa declaraçao é conitinue ela declara ou exececuta sempre que ocorre um erro na DML*/
 	  insert into aluno set nome=p_nome, sexo=p_sexo, dt_nascimento=p_dt_nascimento;
 	  IF !transacao_acid then
            rollback;
-           leave transacao;
            select 'Erro ao cadastrar aluno' as msg;
+            leave transacao;
 	   ELSE
        set @id_aluno=(select distinct last_insert_id() from aluno);
        insert into nota set id_aluno=@id_aluno, nota=p_nota;
@@ -64,3 +67,4 @@ DELIMITER $$ /*Voce já deve saber isso, mudar delimitador de linhas*/
        END IF;
 	END $$
 DELIMITER ;
+
