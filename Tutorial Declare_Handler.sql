@@ -4,7 +4,6 @@
 /* 1STEP: Criei o banco de dados com suporte de caracter utf8 e as tabela aluno de forma improvisada com a engenharia innoDB 
 de modo a suportar transactions(e outros recursos) basta fazeres com show engines e ver*/
 
-select * from aluno;
 
 create database db_estudando_declare_handler
 default character set utf8
