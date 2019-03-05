@@ -1,4 +1,4 @@
- 			   /*Objecto: Aprender a  declrar Manipuladores, muito útil para manipular excessões e melhorar as transaçoes 
+			   /*Objecto: Aprender a  declrar Manipuladores, muito útil para manipular excessões e melhorar as transaçoes 
                  Por:Evandre Da Silva, DBA Junior*/
 
 /* 1STEP: Criei o banco de dados com suporte de caracter utf8 e as tabela aluno de forma improvisada com a engenharia innoDB 
@@ -68,3 +68,29 @@ drop procedure  if exists sp_Insert_Aluno_Nota$$
 	END $$
 DELIMITER ;
 
+
+
+DELIMITER $
+create function avaliar_nota(p_nota decimal(4,2))
+    begin
+     if(p_nota<10 and nota>=7)  then
+     select 'Exame' as Resultado;
+     else if(p_nota>10) then
+     select 'Aprovado' as Resultado;
+     else
+     select 'Reprovado' as Resultado;
+     end if;
+  end$
+DELIMITER ;
+ 
+ call avaliar_resultado(10);
+
+
+Create view vw_pauta As
+select a.id as `Nº Processo`,a.sexo,a.nome as Nome ,n.nota as Nota from aluno as a inner join nota as n ON a.id=n.id_aluno;
+
+
+use db_estudando_declare_handler;
+call sp_Insert_Aluno_Nota('Evandre ND','M','2016-01-02',20.09);
+
+alter table aluno add check(nota<20.00);
