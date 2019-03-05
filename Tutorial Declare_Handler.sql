@@ -58,8 +58,8 @@ drop procedure  if exists sp_Insert_Aluno_Nota$$
        insert into nota set id_aluno=@id_aluno, nota=p_nota;
          IF !transacao_acid then
          rollback;
-         leave transacao;
          select 'Erro ao cadastrar Nota' as msg;
+         leave transacao;
          ELSE
            commit;
            select 'Transação feita com sucesso' as msg;
