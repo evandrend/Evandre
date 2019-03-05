@@ -68,26 +68,33 @@ drop procedure  if exists sp_Insert_Aluno_Nota$$
 	END $$
 DELIMITER ;
 
-
+update aluno set sexo='F' where id=2;
 
 DELIMITER $
+drop function if exists avaliar_nota$
 create function avaliar_nota(p_nota decimal(4,2))
-    begin
-     if(p_nota<10 and nota>=7)  then
-     select 'Exame' as Resultado;
-     else if(p_nota>10) then
-     select 'Aprovado' as Resultado;
-     else
-     select 'Reprovado' as Resultado;
+   returns varchar(10)
+begin
+     declare resultado varchar(10);
+     if(p_nota<10 and p_nota>=7)  then
+		select 'Exame' into resultado;
+     else if(p_nota>=10) then
+		select 'Aprovado' into resultado;
+     else 
+		select 'Reprovado' into resultado;
      end if;
-  end$
+     end if;
+     return resultado;
+end$
 DELIMITER ;
+drop view vw_pauta;
  
- call avaliar_resultado(10);
+ select * from vw_pauta;
 
 
 Create view vw_pauta As
-select a.id as `Nº Processo`,a.sexo,a.nome as Nome ,n.nota as Nota from aluno as a inner join nota as n ON a.id=n.id_aluno;
+select a.id as `Nº Processo`,a.sexo,a.nome as Nome ,n.nota as Nota, avaliar_nota(n.nota) as `Classificação`  from
+ aluno as a inner join nota as n ON a.id=n.id_aluno;
 
 
 use db_estudando_declare_handler;
